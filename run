@@ -2,7 +2,7 @@
 # This script is meant to evoke the algorithm without requiring any input arguments
 #
 
-CONTAINER="[ scitran-apps/parrec-mr-classifier ]"
+CONTAINER="[ scitran/parrec-mr-classifier ]"
 
 FLYWHEEL_BASE=/flywheel/v0
 

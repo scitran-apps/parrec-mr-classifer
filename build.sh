@@ -2,7 +2,7 @@
 # Builds the container.
 # The container can be exported using the export.sh script
 
-CONTAINER=scitran-apps/parrec-mr-classifier
+CONTAINER=scitran/parrec-mr-classifier
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 

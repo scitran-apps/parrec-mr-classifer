@@ -3,7 +3,7 @@
 # started.
 
 version=0.0.1
-repo=scitran-apps
+repo=scitran
 container=dicom-mr-classifier
 outname=$container-$version.tar
 image=$repo/$container
