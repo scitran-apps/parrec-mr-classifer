@@ -50,7 +50,7 @@ def parrec_classify(zip_file_path, output_dir, timezone):
     # Extract the header values and sanitize for entry
     header = {}
     # Allowed types
-    types = [list, float, int]
+    types = [list, float, int, str]
     for k,v in par_header_info.iteritems():
         value = assign_type(v)
         if value and type(value) in types:
