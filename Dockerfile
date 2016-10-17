@@ -5,7 +5,7 @@
 # Example usage:
 #   docker run --rm -ti \
 #        -v /path/to/dicom/data:/data \
-#        scitran-apps/parrec-mr-classifier \
+#        scitran/parrec-mr-classifier \
 #        /data/input.zip \
 #        /data/outprefix
 #
@@ -17,8 +17,11 @@ MAINTAINER Michael Perry <lmperry@stanford.edu>
 # Install dependencies
 RUN apt-get update && apt-get -y install \
     python \
+    python-pip \
     python-numpy \
     python-nibabel
+
+RUN pip install pytz
 
 # Make directory for flywheel spec (v0)
 ENV FLYWHEEL /flywheel/v0

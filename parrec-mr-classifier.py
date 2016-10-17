@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import json
+import pytz
 import string
 import logging
 import zipfile
@@ -64,7 +65,8 @@ def parrec_classify(zip_file_path, output_dir, timezone):
 
     # Session metadata
     metadata['session'] = {}
-    metadata['session']['timestamp'] = datetime.datetime.strptime(par_header_info['exam_date'], '%Y.%m.%d / %H:%M:%S').isoformat()
+    # TODO
+    metadata['session']['timestamp'] = pytz.timezone('UTC').localize(datetime.datetime.strptime(par_header_info['exam_date'], '%Y.%m.%d / %H:%M:%S')).isoformat()
 
     # Subject Metadata
     metadata['session']['subject'] = {}
@@ -83,12 +85,15 @@ def parrec_classify(zip_file_path, output_dir, timezone):
     metadata['acquisition']['measurement'] = measurement_from_label.infer_measurement(par_header_info['protocol_name'])
 
     # Set to the study exam date
-    metadata['acquisition']['timestamp'] = datetime.datetime.strptime(par_header_info['exam_date'], '%Y.%m.%d / %H:%M:%S').isoformat()
+    metadata['acquisition']['timestamp'] = pytz.timezone('UTC').localize(datetime.datetime.strptime(par_header_info['exam_date'], '%Y.%m.%d / %H:%M:%S')).isoformat()
 
     # Acquisition metadata extracted from PAR file header
     if header:
         metadata['acquisition']['metadata'] = {}
         metadata['acquisition']['metadata'] = header
+        # Check for diffusion measurement
+        if header.has_key('diffusion') and header['diffusion']:
+            metadata['acquisition']['measurement'] = 'diffusion'
 
     # Write out the metadata to file (.metadata.json)
     metafile_outname = os.path.join(output_dir,'.metadata.json')
