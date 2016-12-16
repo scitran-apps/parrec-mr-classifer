@@ -30,7 +30,7 @@ COPY run ${FLYWHEEL}/run
 COPY manifest.json ${FLYWHEEL}/manifest.json
 
 # Add code to determine measurement from acquisition label
-ADD https://raw.githubusercontent.com/scitran/utilities/1b8fc44de2d4695ce2820b267e493dd57d5bc99a/measurement_from_label.py ${FLYWHEEL}/measurement_from_label.py
+ADD https://raw.githubusercontent.com/scitran/utilities/c438c7eb8ed8074c919e3ede8f295615023539ac/measurement_from_label.py ${FLYWHEEL}/measurement_from_label.py
 
 # Copy classifier code into place
 COPY parrec-mr-classifier.py ${FLYWHEEL}/parrec-mr-classifier.py
