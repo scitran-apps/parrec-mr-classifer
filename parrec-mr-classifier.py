@@ -155,8 +155,8 @@ def parrec_classify(input_file_path, output_dir, timezone):
                                'Measurement': ['Diffusion']}
 
     # Append the parrec_file to the files array
-    metadata['files'] = []
-    metadata['files'].append(parrec_file)
+    metadata['acquisition']['files'] = []
+    metadata['acquisition']['files'].append(parrec_file)
 
     # If there was a REC file, also update info for that file
     # NOTE - We *could* assume that there is a REC file next to the PAR file in
@@ -165,7 +165,7 @@ def parrec_classify(input_file_path, output_dir, timezone):
     if rec_file and os.path.isfile(rec_file[0]):
         rec_file_info = parrec_file.copy()
         rec_file_info['name'] = os.path.basename(rec_file[0])
-        metadata['files'].append(rec_file_info)
+        metadata['acquisition']['files'].append(rec_file_info)
         os.remove(rec_file[0])
 
     # Write out the metadata to file (.metadata.json)
