@@ -10,8 +10,7 @@
 #        /data/outprefix
 #
 
-FROM ubuntu:trusty
-
+FROM ubuntu:xenial
 MAINTAINER Michael Perry <lmperry@stanford.edu>
 
 # Install dependencies
@@ -19,9 +18,16 @@ RUN apt-get update && apt-get -y install \
     python \
     python-pip \
     python-numpy \
-    python-nibabel
+    python-nibabel \
+    tzdata \
+    wget \
+    jq
 
-RUN pip install pytz
+# Install Pip libs
+RUN pip install \
+  python-dateutil==2.6.0 \
+  pytz==2017.2 \
+  tzlocal==1.4
 
 # Make directory for flywheel spec (v0)
 ENV FLYWHEEL /flywheel/v0
@@ -29,8 +35,9 @@ RUN mkdir -p ${FLYWHEEL}
 COPY run ${FLYWHEEL}/run
 COPY manifest.json ${FLYWHEEL}/manifest.json
 
-# Add code to determine measurement from acquisition label
-ADD https://raw.githubusercontent.com/scitran/utilities/c438c7eb8ed8074c919e3ede8f295615023539ac/measurement_from_label.py ${FLYWHEEL}/measurement_from_label.py
+# Add code to determine classification from acquisitions descrip (label)
+ENV COMMIT d94e00b6fcd72517daf018219ebd7aeca0780e4b
+ADD https://raw.githubusercontent.com/scitran-apps/dicom-mr-classifier/${COMMIT}/classification_from_label.py ${FLYWHEEL}/classification_from_label.py
 
 # Copy classifier code into place
 COPY parrec-mr-classifier.py ${FLYWHEEL}/parrec-mr-classifier.py
