@@ -163,8 +163,9 @@ def parrec_classify(input_file_path, output_dir, timezone):
     # the DB and attempt to set the info for that file as well.
     # NOTE that we do not do this now.
     if rec_file and os.path.isfile(rec_file[0]):
-        parrec_file['name'] = os.path.basename(rec_file[0])
-        metadata['files'].append(parrec_file)
+        rec_file_info = parrec_file.copy()
+        rec_file_info['name'] = os.path.basename(rec_file[0])
+        metadata['files'].append(rec_file_info)
         os.remove(rec_file[0])
 
     # Write out the metadata to file (.metadata.json)
