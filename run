@@ -58,7 +58,7 @@ fi
 
 if [[ -z $@ ]]
     then
-      input_file=`find $INPUT_DIR -type f | head -1`
+      input_file=`find $INPUT_DIR -not -path '*/\.*' -type f | head -1`
       if [[ -n $input_file ]]
         then
             PYHONPATH=$PYTHONPATH:/flywheel/v0/ python $FLYWHEEL_BASE/parrec-mr-classifier.py "$input_file" "$OUTPUT_DIR"
