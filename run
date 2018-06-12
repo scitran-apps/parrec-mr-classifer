@@ -9,16 +9,60 @@ FLYWHEEL_BASE=/flywheel/v0
 # Make sure that /output directory is empty (all content will be removed later).
 OUTPUT_DIR=$FLYWHEEL_BASE/output
 INPUT_DIR=$FLYWHEEL_BASE/input/parrec
+CONFIG_FILE=$FLYWHEEL_BASE/config.json
+MANIFEST_FILE=$FLYWHEEL_BASE/manifest.json
 
-set -e
 
-# Check if the inputs are empty.
+##############################################################################
+# Parse configuration
+
+if [[ -f $CONFIG_FILE ]]; then
+  eval $(jq -r '.config | to_entries[] | "config_\(.key)=\(.value)"' $CONFIG_FILE)
+else
+  CONFIG_FILE=$MANIFEST_FILE
+  eval $(jq -r '.config | to_entries[] | "config_\(.key)=\(.value.default)"' $CONFIG_FILE)
+fi
+
+
+##############################################################################
+# Set Time Zone
+
+TZ="${config_timezone}"
+echo "${CONTAINER}  Setting time zone to: $TZ"
+echo "$TZ" > /etc/timezone && ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime
+dpkg-reconfigure -f noninteractive tzdata
+
+
+##############################################################################
+# Handle sync option
+
+if [[ ${config_sync} == "true" ]]; then
+  echo -e "$CONTAINER  Syncing classification code from scitran-apps/dicom-mr-classifier/sync-classification-e4..."
+  mv ${FLYWHEEL_BASE}/classification_from_label.py /tmp
+  wget --quiet -O ${FLYWHEEL_BASE}/classification_from_label.py \
+      https://raw.githubusercontent.com/scitran-apps/dicom-mr-classifier/sync-classification-e4/classification_from_label.py
+  STAT_GET=$?
+  if [[ $STAT_GET != 0 ]]; then
+    echo -e "$CONTAINER Error during sync!"
+    mv /tmp/classification_from_label.py ${FLYWHEEL_BASE}
+  else
+    chmod +x ${FLYWHEEL_BASE}/classification_from_label.py
+  fi
+else
+  echo -e "$CONTAINER  Not syncing classification code. Using built-in version..."
+fi
+
+
+##############################################################################
+# Check I/O directories and Generate metadata
+
 if [[ -z $@ ]]
     then
-      input_file=`find $INPUT_DIR -type f -name "*.zip*" | head -1`
+      input_file=`find $INPUT_DIR -type f | head -1`
       if [[ -n $input_file ]]
         then
             PYHONPATH=$PYTHONPATH:/flywheel/v0/ python $FLYWHEEL_BASE/parrec-mr-classifier.py "$input_file" "$OUTPUT_DIR"
+            E_STATUS=$?
       else
             echo -e "$INPUT_DIR has no valid input files!"
             exit 1
@@ -26,21 +70,25 @@ if [[ -z $@ ]]
 else
     # Run with input arguments
     PYHONPATH=$PYTHONPATH:/flywheel/v0/ python $FLYWHEEL_BASE/parrec-mr-classifier.py $@
+    E_STATUS=$?
 fi
 
 
-# Get a list of the files in the output directory
-outputs=`find $OUTPUT_DIR -type f -name ".metadata.json"`
+##############################################################################
+# Check for outputs and exit
 
+output=`find $OUTPUT_DIR -type f -name ".metadata.json"`
 
-# Check for outputs
-if [[ -z $outputs ]]
-    then
-        echo -e "$CONTAINER  No results found in output directory... Exiting"
-        exit 1
-    else
-        chmod -R 777 $OUTPUT_DIR
-        echo -e "$CONTAINER  Success."
+# If outputs exist, then go on...
+if [[ -f $output ]] && [[ $E_STATUS == 0 ]]; then
+    chmod -R 777 $OUTPUT_DIR
+    echo -e "$CONTAINER  Success."
+else
+    echo -e "$CONTAINER  Errors occurred during metadata generation... Exiting!"
+    exit 1
+    if [[ -f $output ]]; then
+        rm $output
+    fi
 fi
 
 exit 0
