@@ -36,7 +36,7 @@ COPY run ${FLYWHEEL}/run
 COPY manifest.json ${FLYWHEEL}/manifest.json
 
 # Add code to determine classification from acquisitions descrip (label)
-ENV COMMIT d94e00b6fcd72517daf018219ebd7aeca0780e4b
+ENV COMMIT 3f202ef731918e10c5c1da2dcfd8726edda3f010
 ADD https://raw.githubusercontent.com/scitran-apps/dicom-mr-classifier/${COMMIT}/classification_from_label.py ${FLYWHEEL}/classification_from_label.py
 
 # Copy classifier code into place
