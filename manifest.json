@@ -11,6 +11,10 @@
     "version": "2.0.1",
     "custom": {
         "docker-image": "scitran/parrec-mr-classifier:2.0.1",
+        "gear-builder": {
+            "category": "converter",
+            "image": "scitran/parrec-mr-classifier:2.0.1"
+        },
         "flywheel": {
             "suite": "SciTran"
         }
